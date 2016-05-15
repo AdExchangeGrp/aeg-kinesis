@@ -2,6 +2,7 @@
 
 import AWS from 'aws-sdk';
 import chunk from 'chunk';
+//noinspection JSUnresolvedVariable
 import _ from 'lodash';
 import async from 'async';
 //noinspection JSUnresolvedVariable
@@ -9,21 +10,21 @@ import {EventEmitter} from 'events';
 
 class Kinesis extends EventEmitter {
 
-	constructor(credentials, stream) {
+	constructor(credentials) {
 		super();
 		this._kinesis = new AWS.Kinesis(credentials);
-		this._stream = stream;
 	}
 
 	/**
 	 * Write a batch of records to a stream with an event type and timestamp
+	 * @param {string} stream - the stream to write to
 	 * @param {string} type - the type of the event sent
 	 * @param {string} partitionKey - a property on the records used as a shard key
 	 * @param {Object[]} records - a single or an array of objects
 	 * @param {string} timestamp of format YYYY-MM-DD HH:mm:ss
 	 * @param {function} callback
 	 */
-	write(type, partitionKey, records, timestamp, callback) {
+	write(stream, type, partitionKey, records, timestamp, callback) {
 
 		const self = this;
 
@@ -42,7 +43,7 @@ class Kinesis extends EventEmitter {
 
 		self.emit('info', {
 			message: 'written to stream',
-			data: {stream: self._stream, type, partitionKey, count: records.length}
+			data: {stream, type, partitionKey, count: records.length}
 		});
 
 		const kinesisRecords = _.map(records, (record) => {
@@ -63,13 +64,13 @@ class Kinesis extends EventEmitter {
 
 			var recordParams = {
 				Records: data,
-				StreamName: self._stream
+				StreamName: stream
 			};
 
 			//noinspection JSUnresolvedFunction
 			this._kinesis.putRecords(recordParams, function (err) {
 				if (err) {
-					self.emit('error', {message: 'failed to write to Kinesis stream', data: {stream: self._stream}});
+					self.emit('error', {message: 'failed to write to Kinesis stream', data: {stream}});
 				}
 				callback(err);
 			});
