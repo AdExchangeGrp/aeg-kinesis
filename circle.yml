@@ -1,0 +1,26 @@
+machine:
+  node:
+    version: 4.2.3
+
+dependencies:
+  pre:
+    - npm install -g npm@3.8.6
+    - echo //registry.npmjs.org/:_authToken=$NPM_TOKEN  >> ~/.npmrc
+
+test:
+  override:
+    - npm run build
+    - mkdir $CIRCLE_TEST_REPORTS/junit/
+    - cp test-results.xml $CIRCLE_TEST_REPORTS/junit
+
+deployment:
+  npm:
+    branch: master
+    commands:
+      - git config --global user.email "adexchangedevops@adexchangegrp.com"
+      - git config --global user.name "adexchangedevops"
+      - npm run patch
+
+general:
+  artifacts:
+    - coverage
