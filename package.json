@@ -30,8 +30,10 @@
   },
   "dependencies": {
     "async": "^1.5.0",
+    "aws-sdk": "^2.3.11",
     "babel-core": "^6.1.21",
     "babel-preset-es2015": "^6.1.18",
+    "chunk": "0.0.2",
     "lodash": "^3.10.1"
   },
   "engine": "node >= 4.1.0"
