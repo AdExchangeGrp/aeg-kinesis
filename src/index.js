@@ -68,7 +68,7 @@ class Kinesis extends EventEmitter {
 			};
 
 			//noinspection JSUnresolvedFunction
-			this._kinesis.putRecords(recordParams, function (err) {
+			self._kinesis.putRecords(recordParams, function (err) {
 				if (err) {
 					self.emit('error', {message: 'failed to write to Kinesis stream', data: {stream}});
 				}
