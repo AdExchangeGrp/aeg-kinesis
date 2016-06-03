@@ -2,7 +2,7 @@
 
 ### What is this repository for? ###
 
-Kinesis client.
+Kinesis client
 
 ### How do I get set up? ###
 1. Clone the repository

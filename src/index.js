@@ -2,10 +2,8 @@
 
 import AWS from 'aws-sdk';
 import chunk from 'chunk';
-//noinspection JSUnresolvedVariable
 import _ from 'lodash';
 import async from 'async';
-//noinspection JSUnresolvedVariable
 import {EventEmitter} from 'events';
 
 class Kinesis extends EventEmitter {
@@ -19,12 +17,22 @@ class Kinesis extends EventEmitter {
 	 * Write a batch of records to a stream with an event type and timestamp
 	 * @param {string} stream - the stream to write to
 	 * @param {string} type - the type of the event sent
-	 * @param {string} partitionKey - a property on the records used as a shard key
+	 * @param {string} partitionKey - the shard key
 	 * @param {Object[]} records - a single or an array of objects
 	 * @param {string} timestamp of format YYYY-MM-DD HH:mm:ss
+	 * @param {object} options
 	 * @param {function} callback
 	 */
-	write(stream, type, partitionKey, records, timestamp, callback) {
+	write(stream, type, partitionKey, records, timestamp, options, callback) {
+
+		let args = Array.prototype.slice.call(arguments);
+		stream = args.shift();
+		type = args.shift();
+		partitionKey = args.shift();
+		records = args.shift();
+		timestamp = args.shift();
+		callback = args.pop();
+		options = args.length > 0 ? args.shift() : {};
 
 		const self = this;
 
@@ -47,7 +55,11 @@ class Kinesis extends EventEmitter {
 		});
 
 		const kinesisRecords = _.map(records, (record) => {
-			return {type, timestamp, data: record};
+			const event = {type, timestamp, data: record};
+			if (options.audience) {
+				event.for = options.audience;
+			}
+			return event;
 		});
 
 		const batches = chunk(kinesisRecords, 500);
@@ -59,7 +71,7 @@ class Kinesis extends EventEmitter {
 		function _writeBatchToStream(batch, callback) {
 
 			const data = _.map(batch, (record) => {
-				return {Data: JSON.stringify(record), PartitionKey: String(record.data[partitionKey])};
+				return {Data: JSON.stringify(record), PartitionKey: String(partitionKey)};
 			});
 
 			var recordParams = {
