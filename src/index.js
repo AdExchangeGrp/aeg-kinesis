@@ -2,10 +2,8 @@
 
 import AWS from 'aws-sdk';
 import chunk from 'chunk';
-//noinspection JSUnresolvedVariable
 import _ from 'lodash';
 import async from 'async';
-//noinspection JSUnresolvedVariable
 import {EventEmitter} from 'events';
 
 class Kinesis extends EventEmitter {
@@ -22,9 +20,19 @@ class Kinesis extends EventEmitter {
 	 * @param {string} partitionKey - a property on the records used as a shard key
 	 * @param {Object[]} records - a single or an array of objects
 	 * @param {string} timestamp of format YYYY-MM-DD HH:mm:ss
+	 * @param {object} options
 	 * @param {function} callback
 	 */
-	write(stream, type, partitionKey, records, timestamp, callback) {
+	write(stream, type, partitionKey, records, timestamp, options, callback) {
+
+		let args = Array.prototype.slice.call(arguments);
+		stream = args.shift();
+		type = args.shift();
+		partitionKey = args.shift();
+		records = args.shift();
+		timestamp = args.shift();
+		callback = args.pop();
+		options = args.length > 0 ? args.shift() : null;
 
 		const self = this;
 
@@ -47,7 +55,11 @@ class Kinesis extends EventEmitter {
 		});
 
 		const kinesisRecords = _.map(records, (record) => {
-			return {type, timestamp, data: record};
+			const event = {type, timestamp, data: record};
+			if (options.audience) {
+				event.for = options.audience;
+			}
+			return event;
 		});
 
 		const batches = chunk(kinesisRecords, 500);
