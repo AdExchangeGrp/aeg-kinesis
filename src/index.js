@@ -17,18 +17,18 @@ class Kinesis extends EventEmitter {
 	 * Write a batch of records to a stream with an event type and timestamp
 	 * @param {string} stream - the stream to write to
 	 * @param {string} type - the type of the event sent
-	 * @param {string} partitionKey - the shard key
+	 * @param {string} partition - useRecordProperty: use a record property, value: the shard key value or the record property name to use
 	 * @param {Object[]} records - a single or an array of objects
 	 * @param {string} timestamp of format YYYY-MM-DD HH:mm:ss
 	 * @param {object} options
 	 * @param {function} callback
 	 */
-	write(stream, type, partitionKey, records, timestamp, options, callback) {
+	write(stream, type, partition, records, timestamp, options, callback) {
 
 		let args = Array.prototype.slice.call(arguments);
 		stream = args.shift();
 		type = args.shift();
-		partitionKey = args.shift();
+		partition = args.shift();
 		records = args.shift();
 		timestamp = args.shift();
 		callback = args.pop();
@@ -51,7 +51,7 @@ class Kinesis extends EventEmitter {
 
 		self.emit('info', {
 			message: 'written to stream',
-			data: {stream, type, partitionKey, count: records.length}
+			data: {stream, type, partition, count: records.length}
 		});
 
 		const kinesisRecords = _.map(records, (record) => {
@@ -71,6 +71,7 @@ class Kinesis extends EventEmitter {
 		function _writeBatchToStream(batch, callback) {
 
 			const data = _.map(batch, (record) => {
+				const partitionKey = partition.useRecordProperty ? record[partition.value] : partition.value;
 				return {Data: JSON.stringify(record), PartitionKey: String(partitionKey)};
 			});
 
