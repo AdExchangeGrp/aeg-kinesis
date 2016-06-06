@@ -20,7 +20,7 @@ class Kinesis extends EventEmitter {
 	 * @param {string} type - the type of the event sent
 	 * @param {string} partition - useRecordProperty: use a record property, value: the shard key value or the record property name to use
 	 * @param {Object[]} records - a single or an array of objects
-	 * @param {string} timestamp - moment representing event time
+	 * @param {moment} timestamp - event time
 	 * @param {object} options
 	 * @param {function} callback
 	 */
