@@ -20,7 +20,7 @@ class Kinesis extends EventEmitter {
 	 * @param {string} type - the type of the event sent
 	 * @param {string} partition - useRecordProperty: use a record property, value: the shard key value or the record property name to use
 	 * @param {Object[]} records - a single or an array of objects
-	 * @param {string} timestamp of format YYYY-MM-DD HH:mm:ss
+	 * @param {string} timestamp - moment representing event time
 	 * @param {object} options
 	 * @param {function} callback
 	 */
@@ -56,7 +56,12 @@ class Kinesis extends EventEmitter {
 		});
 
 		const kinesisRecords = _.map(records, (record) => {
-			const event = {type, timestamp, published: moment.tz('UTC').format('YYYY-MM-DD HH:mm:ss'), data: record};
+			const event = {
+				type,
+				timestamp: timestamp.tz('UTC').format('YYYY-MM-DD HH:mm:ss'),
+				published: moment.tz('UTC').format('YYYY-MM-DD HH:mm:ss'),
+				data: record
+			};
 			if (options.audience) {
 				event.for = options.audience;
 			}
