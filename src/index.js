@@ -5,6 +5,7 @@ import chunk from 'chunk';
 import _ from 'lodash';
 import async from 'async';
 import {EventEmitter} from 'events';
+import moment from 'moment-timezone';
 
 class Kinesis extends EventEmitter {
 
@@ -55,7 +56,7 @@ class Kinesis extends EventEmitter {
 		});
 
 		const kinesisRecords = _.map(records, (record) => {
-			const event = {type, timestamp, data: record};
+			const event = {type, timestamp, published: moment.tz('UTC').format('YYYY-MM-DD HH:mm:ss'), data: record};
 			if (options.audience) {
 				event.for = options.audience;
 			}
