@@ -1,17 +1,17 @@
-'use strict';
-
 import AWS from 'aws-sdk';
 import chunk from 'chunk';
 import _ from 'lodash';
-import async from 'async';
-import {EventEmitter} from 'events';
+import { EventEmitter } from 'events';
 import moment from 'moment-timezone';
+import Promise from 'bluebird';
 
 class Kinesis extends EventEmitter {
 
-	constructor(credentials) {
+	constructor (credentials) {
+
 		super();
 		this._kinesis = new AWS.Kinesis(credentials);
+
 	}
 
 	/**
@@ -21,33 +21,31 @@ class Kinesis extends EventEmitter {
 	 * @param {string} partition - useRecordProperty: use a record property, value: the shard key value or the record property name to use
 	 * @param {Object[]} records - a single or an array of objects
 	 * @param {moment} timestamp - event time
-	 * @param {object} options
-	 * @param {function} callback
+	 * @param {object} [options]
 	 */
-	write(stream, type, partition, records, timestamp, options, callback) {
+	async write (stream, type, partition, records, timestamp, options) {
 
-		let args = Array.prototype.slice.call(arguments);
-		stream = args.shift();
-		type = args.shift();
-		partition = args.shift();
-		records = args.shift();
-		timestamp = args.shift();
-		callback = args.pop();
-		options = args.length > 0 ? args.shift() : {};
+		options = options || {};
 
 		const self = this;
 
 		if (!records) {
-			return callback();
+
+			return;
+
 		}
 
-		//single record written to array
+		// single record written to array
 		if (!_.isArray(records)) {
+
 			records = [records];
+
 		}
 
 		if (!records.length) {
-			return callback();
+
+			return;
+
 		}
 
 		self.emit('info', {
@@ -56,6 +54,7 @@ class Kinesis extends EventEmitter {
 		});
 
 		const kinesisRecords = _.map(records, (record) => {
+
 			const event = {
 				type,
 				timestamp: timestamp.tz('UTC').format('YYYY-MM-DD HH:mm:ss'),
@@ -63,22 +62,34 @@ class Kinesis extends EventEmitter {
 				data: record
 			};
 			if (options.audience) {
+
 				event.for = options.audience;
+
 			}
 			return event;
+
 		});
 
 		const batches = chunk(kinesisRecords, 500);
 
-		async.eachSeries(batches, (batch, callback) => {
-			_writeBatchToStream(batch, callback);
-		}, callback);
+		return Promise.each(batches, (batch) => {
 
-		function _writeBatchToStream(batch, callback) {
+			return _writeBatchToStream(batch);
+
+		});
+
+		/**
+		 * Write a batch of records
+		 * @param {Object[]} batch
+		 * @private
+		 */
+		async function _writeBatchToStream (batch) {
 
 			const data = _.map(batch, (record) => {
+
 				const partitionKey = partition.useRecordProperty ? record[partition.value] : partition.value;
 				return {Data: JSON.stringify(record), PartitionKey: String(partitionKey)};
+
 			});
 
 			var recordParams = {
@@ -86,15 +97,14 @@ class Kinesis extends EventEmitter {
 				StreamName: stream
 			};
 
-			//noinspection JSUnresolvedFunction
-			self._kinesis.putRecords(recordParams, function (err) {
-				if (err) {
-					self.emit('error', {message: 'failed to write to Kinesis stream', data: {stream}});
-				}
-				callback(err);
-			});
+			const putRecords = Promise.promisify(self._kinesis.putRecords, {context: self._kinesis});
+
+			return putRecords(recordParams);
+
 		}
+
 	}
+
 }
 
 export default Kinesis;
