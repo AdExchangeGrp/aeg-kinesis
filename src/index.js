@@ -21,7 +21,7 @@ class Kinesis extends EventEmitter {
 	 * @param {string} partition - useRecordProperty: use a record property, value: the shard key value or the record property name to use
 	 * @param {Object[]} records - a single or an array of objects
 	 * @param {moment} timestamp - event time
-	 * @param {object} [options]
+	 * @param {{[published]: moment, [audience]: string}} [options]
 	 */
 	async write (stream, type, partition, records, timestamp, options) {
 
@@ -58,7 +58,9 @@ class Kinesis extends EventEmitter {
 			const event = {
 				type,
 				timestamp: timestamp.tz('UTC').format('YYYY-MM-DD HH:mm:ss'),
-				published: moment.tz('UTC').format('YYYY-MM-DD HH:mm:ss'),
+				published: options.published
+					? options.published.tz('UTC').format('YYYY-MM-DD HH:mm:ss')
+					: moment.tz('UTC').format('YYYY-MM-DD HH:mm:ss'),
 				data: record
 			};
 			if (options.audience) {
