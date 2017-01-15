@@ -53,14 +53,34 @@ class Kinesis extends EventEmitter {
 			data: {stream, type, partition, count: records.length}
 		});
 
+		let published;
+		let publishedIsRecordProperty = false;
+
+		if (options.published) {
+
+			if (moment.isMoment(options.published)) {
+
+				published = options.published.tz('UTC').format('YYYY-MM-DD HH:mm:ss');
+
+			} else {
+
+				publishedIsRecordProperty = true;
+				published = options.published;
+
+			}
+
+		} else {
+
+			published = moment.tz('UTC').format('YYYY-MM-DD HH:mm:ss');
+
+		}
+
 		const kinesisRecords = _.map(records, (record) => {
 
 			const event = {
 				type,
 				timestamp: timestamp.tz('UTC').format('YYYY-MM-DD HH:mm:ss'),
-				published: options.published
-					? options.published.tz('UTC').format('YYYY-MM-DD HH:mm:ss')
-					: moment.tz('UTC').format('YYYY-MM-DD HH:mm:ss'),
+				published: publishedIsRecordProperty ? record[published] : published,
 				data: record
 			};
 			if (options.audience) {
@@ -94,7 +114,7 @@ class Kinesis extends EventEmitter {
 
 			});
 
-			var recordParams = {
+			const recordParams = {
 				Records: data,
 				StreamName: stream
 			};
