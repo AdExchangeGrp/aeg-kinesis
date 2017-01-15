@@ -21,7 +21,7 @@ class Kinesis extends EventEmitter {
 	 * @param {string} partition - useRecordProperty: use a record property, value: the shard key value or the record property name to use
 	 * @param {Object[]} records - a single or an array of objects
 	 * @param {moment} timestamp - event time
-	 * @param {{[published]: moment, [audience]: string}} [options]
+	 * @param {{[published]: moment | string, [audience]: string}} [options]
 	 */
 	async write (stream, type, partition, records, timestamp, options) {
 
