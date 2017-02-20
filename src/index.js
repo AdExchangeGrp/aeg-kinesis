@@ -18,7 +18,7 @@ class Kinesis extends EventEmitter {
 	 * Write a batch of records to a stream with an event type and timestamp
 	 * @param {string} stream - the stream to write to
 	 * @param {string} type - the type of the event sent
-	 * @param {string} partition - useRecordProperty: use a record property, value: the shard key value or the record property name to use
+	 * @param {string | Object} partition - useRecordProperty: use a record property, value: the shard key value or the record property name to use
 	 * @param {Object[]} records - a single or an array of objects
 	 * @param {moment} timestamp - event time
 	 * @param {{[published]: moment | string, [audience]: string}} [options]
@@ -109,7 +109,7 @@ class Kinesis extends EventEmitter {
 
 			const data = _.map(batch, (record) => {
 
-				const partitionKey = partition.useRecordProperty ? record[partition.value] : partition.value;
+				const partitionKey = partition.useRecordProperty ? record.data[partition.value] : partition.value;
 				return {Data: JSON.stringify(record), PartitionKey: String(partitionKey)};
 
 			});

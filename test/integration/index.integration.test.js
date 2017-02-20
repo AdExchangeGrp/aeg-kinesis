@@ -13,7 +13,10 @@ describe('index', async () => {
 				secretAccessKey: 'gtuQ04Lyu6NIHvy1hu1KDTQIcAJx6pnSoeO4JaUz'
 			});
 
-			await kinesis.write('camp2-ci', 'test', 'campId', [{campId: 123}], moment.tz());
+			await kinesis.write('camp2-ci', 'test', {
+				useRecordProperty: true,
+				value: 'campId'
+			}, [{campId: 1000}], moment.tz());
 
 		});
 
