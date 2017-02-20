@@ -1,6 +1,6 @@
 {
   "name": "@adexchange/aeg-kinesis",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "description": "Kinesis client",
   "main": "lib/index.js",
   "author": "Ad Exchange Group",
