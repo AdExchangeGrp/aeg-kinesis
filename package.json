@@ -19,30 +19,28 @@
     "patch": "git reset --hard HEAD && git clean -fd && npm run compile && npm version patch -m \"[ci skip] %s\" && git push origin master && git push origin master --tags && npm publish"
   },
   "devDependencies": {
-    "babel-cli": "^6.1.18",
-    "babel-core": "^6.14.0",
-    "babel-eslint": "^6.1.2",
-    "babel-plugin-transform-runtime": "^6.15.0",
-    "babel-preset-es2015": "^6.14.0",
-    "babel-preset-stage-3": "^6.11.0",
-    "babel-runtime": "^6.11.6",
-    "eslint": "^3.5.0",
-    "eslint-config-standard": "^6.0.1",
-    "eslint-plugin-promise": "^2.0.1",
-    "eslint-plugin-standard": "^2.0.0",
-    "istanbul": "^0.3.17",
-    "mocha": "^2.2.5",
-    "mocha-junit-reporter": "^1.9.1",
-    "onchange": "^1.1.0",
-    "parallelshell": "^2.0.0",
-    "should": "^5.2.0"
+    "babel-cli": "^6.23.0",
+    "babel-core": "^6.23.1",
+    "babel-eslint": "^7.1.1",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-latest": "^6.22.0",
+    "babel-runtime": "^6.23.0",
+    "eslint": "^3.16.1",
+    "eslint-config-standard": "^6.2.1",
+    "eslint-plugin-promise": "^3.4.2",
+    "eslint-plugin-standard": "^2.0.1",
+    "istanbul": "^0.4.5",
+    "mocha": "^3.2.0",
+    "mocha-junit-reporter": "^1.13.0",
+    "onchange": "^3.2.1",
+    "should": "^11.2.0"
   },
   "dependencies": {
-    "aws-sdk": "^2.3.11",
-    "bluebird": "^3.4.6",
+    "aws-sdk": "^2.20.0",
+    "bluebird": "^3.4.7",
     "chunk": "0.0.2",
-    "lodash": "^4.15.0",
-    "moment-timezone": "^0.5.4"
+    "lodash": "^4.17.4",
+    "moment-timezone": "^0.5.11"
   },
-  "engine": "node >= 4.1.0"
+  "engine": "node >= 6.10.0"
 }
