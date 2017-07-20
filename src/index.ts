@@ -1,15 +1,27 @@
-import AWS from 'aws-sdk';
-import chunk from 'chunk';
-import _ from 'lodash';
+import * as AWS from 'aws-sdk';
+import * as chunk from 'chunk';
+import * as _ from 'lodash';
 import { EventEmitter } from 'events';
-import moment from 'moment-timezone';
-import Promise from 'bluebird';
+import * as  moment from 'moment-timezone';
+import * as BBPromise from 'bluebird';
+import { ClientConfiguration } from 'aws-sdk/clients/kinesis';
 
-class Kinesis extends EventEmitter {
+export interface IKinesisEvent {
+	type: string;
+	timestamp: string;
+	published: string;
+	data: any;
+	'for'?: string;
+}
 
-	constructor (credentials) {
+export default class Kinesis extends EventEmitter {
+
+	private _kinesis: AWS.Kinesis;
+
+	constructor (credentials: ClientConfiguration) {
 
 		super();
+
 		this._kinesis = new AWS.Kinesis(credentials);
 
 	}
@@ -23,9 +35,13 @@ class Kinesis extends EventEmitter {
 	 * @param {moment} timestamp - event time
 	 * @param {{[published]: moment | string, [audience]: string}} [options]
 	 */
-	async write (stream, type, partition, records, timestamp, options) {
-
-		options = options || {};
+	async write (
+		stream: string,
+		type: string,
+		partition: { useRecordProperty?: boolean, value: string },
+		records: any[],
+		timestamp: moment.Moment,
+		options: { published?: moment.Moment, audience?: string } = {}) {
 
 		const self = this;
 
@@ -77,24 +93,26 @@ class Kinesis extends EventEmitter {
 
 		const kinesisRecords = _.map(records, (record) => {
 
-			const event = {
+			const event: IKinesisEvent = {
 				type,
 				timestamp: timestamp.tz('UTC').format('YYYY-MM-DD HH:mm:ss'),
 				published: publishedIsRecordProperty ? record[published] : published,
 				data: record
 			};
+
 			if (options.audience) {
 
 				event.for = options.audience;
 
 			}
+
 			return event;
 
 		});
 
-		const batches = chunk(kinesisRecords, 500);
+		const batches: IKinesisEvent[][] = chunk(kinesisRecords, 500);
 
-		return Promise.each(batches, (batch) => {
+		return BBPromise.each(batches, (batch) => {
 
 			return _writeBatchToStream(batch);
 
@@ -102,10 +120,8 @@ class Kinesis extends EventEmitter {
 
 		/**
 		 * Write a batch of records
-		 * @param {Object[]} batch
-		 * @private
 		 */
-		async function _writeBatchToStream (batch) {
+		async function _writeBatchToStream (batch: IKinesisEvent[]) {
 
 			const data = _.map(batch, (record) => {
 
@@ -119,7 +135,7 @@ class Kinesis extends EventEmitter {
 				StreamName: stream
 			};
 
-			const putRecords = Promise.promisify(self._kinesis.putRecords, {context: self._kinesis});
+			const putRecords: any = BBPromise.promisify(self._kinesis.putRecords, {context: self._kinesis});
 
 			return putRecords(recordParams);
 
@@ -128,5 +144,3 @@ class Kinesis extends EventEmitter {
 	}
 
 }
-
-export default Kinesis;
