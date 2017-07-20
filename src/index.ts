@@ -30,12 +30,13 @@ export default class Kinesis extends EventEmitter {
 	 * Write a batch of records to a stream with an event type and timestamp
 	 * @param {string} stream - the stream to write to
 	 * @param {string} type - the type of the event sent
-	 * @param {Object} partition - useRecordProperty: use a record property, value: the shard key value or the record property name to use
+	 * @param {Object} partition - useRecordProperty: use a record property,
+	 *                             value: the shard key value or the record property name to use
 	 * @param {Object[]} records - a single or an array of objects
 	 * @param {moment} timestamp - event time
 	 * @param {{[published]: moment | string, [audience]: string}} [options]
 	 */
-	async write (
+	public async write (
 		stream: string,
 		type: string,
 		partition: { useRecordProperty?: boolean, value: string },
