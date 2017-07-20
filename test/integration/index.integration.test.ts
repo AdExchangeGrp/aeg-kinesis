@@ -1,5 +1,5 @@
 import Kinesis from '../../src/index';
-import moment from 'moment-timezone';
+import * as moment from 'moment-timezone';
 
 describe('index', async () => {
 
