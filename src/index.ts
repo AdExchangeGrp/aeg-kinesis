@@ -4,7 +4,7 @@ import * as _ from 'lodash';
 import { EventEmitter } from 'events';
 import * as  moment from 'moment-timezone';
 import * as BBPromise from 'bluebird';
-import { ClientConfiguration } from 'aws-sdk/clients/kinesis';
+import { ClientConfiguration, PutRecordsInput } from 'aws-sdk/clients/kinesis';
 
 export interface IKinesisEvent {
 	type: string;
@@ -131,7 +131,7 @@ export default class Kinesis extends EventEmitter {
 
 			});
 
-			const recordParams = {
+			const recordParams: PutRecordsInput = {
 				Records: data,
 				StreamName: stream
 			};
