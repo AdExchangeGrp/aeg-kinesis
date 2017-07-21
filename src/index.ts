@@ -40,7 +40,7 @@ export default class Kinesis extends EventEmitter {
 		stream: string,
 		type: string,
 		partition: { useRecordProperty?: boolean, value: string },
-		records: any[],
+		records: any[] | any,
 		timestamp: moment.Moment,
 		options: { published?: moment.Moment, audience?: string } = {}) {
 
