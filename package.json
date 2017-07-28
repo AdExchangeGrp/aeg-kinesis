@@ -56,7 +56,7 @@
     "@types/bluebird": "^3.5.8",
     "@types/lodash": "^4.14.70",
     "@types/moment-timezone": "^0.2.34",
-    "aws-sdk": "^2.20.0",
+    "aws-sdk": "^2.92.0",
     "bluebird": "^3.4.7",
     "chunk": "0.0.2",
     "lodash": "^4.17.4",
