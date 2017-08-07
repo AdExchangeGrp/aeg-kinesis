@@ -1,10 +1,11 @@
-import * as AWS from 'aws-sdk';
 import * as chunk from 'chunk';
 import * as _ from 'lodash';
 import { EventEmitter } from 'events';
 import * as  moment from 'moment-timezone';
 import * as BBPromise from 'bluebird';
 import { ClientConfiguration, PutRecordsInput } from 'aws-sdk/clients/kinesis';
+import * as xray from 'aws-xray-sdk';
+import * as AWS from 'aws-sdk';
 
 export interface IKinesisEvent {
 	type: string;
@@ -18,11 +19,21 @@ export default class Kinesis extends EventEmitter {
 
 	private _kinesis: AWS.Kinesis;
 
-	constructor (credentials: ClientConfiguration) {
+	constructor (credentials: ClientConfiguration, options: { xrayContext?: xray } = {}) {
 
 		super();
 
-		this._kinesis = new AWS.Kinesis(credentials);
+		if (options.xrayContext) {
+
+			const aws = options.xrayContext.captureAWS(require('aws-sdk'));
+			this._kinesis = new aws.Kinesis(credentials);
+
+		} else {
+
+			const aws = require('aws-sdk');
+			this._kinesis = new aws.Kinesis(credentials);
+
+		}
 
 	}
 
