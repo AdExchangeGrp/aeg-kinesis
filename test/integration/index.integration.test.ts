@@ -1,6 +1,5 @@
 import Kinesis from '../../src/index';
 import * as moment from 'moment-timezone';
-import * as AWS from 'aws-sdk';
 
 describe('index', async () => {
 
@@ -8,7 +7,7 @@ describe('index', async () => {
 
 		it('should return without error', async () => {
 
-			const kinesis = new Kinesis(AWS, {
+			const kinesis = new Kinesis({
 				region: 'us-west-2',
 				accessKeyId: 'AKIAJNWTWN65HP3BGZ4Q',
 				secretAccessKey: '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'
