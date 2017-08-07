@@ -24,11 +24,12 @@ export default class Kinesis extends EventEmitter {
 
 	private _kinesis: AWS.Kinesis;
 
-	constructor (aws: IAWS, credentials: ClientConfiguration) {
+	constructor (credentials: ClientConfiguration, options: { aws?: IAWS } = {}) {
 
 		super();
 
-		this._kinesis = new aws.Kinesis(credentials);
+		const context = options.aws ? options.aws : AWS;
+		this._kinesis = new context.Kinesis(credentials);
 
 	}
 
