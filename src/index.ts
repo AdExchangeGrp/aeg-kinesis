@@ -5,6 +5,7 @@ import * as  moment from 'moment-timezone';
 import * as BBPromise from 'bluebird';
 import { ClientConfiguration, PutRecordsInput } from 'aws-sdk/clients/kinesis';
 import * as AWS from 'aws-sdk';
+import { Segment } from 'aws-xray-sdk';
 
 export interface IAWS {
 	Kinesis: {
@@ -24,12 +25,15 @@ export default class Kinesis extends EventEmitter {
 
 	private _kinesis: AWS.Kinesis;
 
-	constructor (credentials: ClientConfiguration, options: { aws?: IAWS } = {}) {
+	private _segment: Segment | undefined;
+
+	constructor (credentials: ClientConfiguration, options: { aws?: IAWS, segment?: Segment } = {}) {
 
 		super();
 
 		const context = options.aws ? options.aws : AWS;
 		this._kinesis = new context.Kinesis(credentials);
+		this._segment = options.segment;
 
 	}
 
@@ -138,10 +142,16 @@ export default class Kinesis extends EventEmitter {
 
 			});
 
-			const recordParams: PutRecordsInput = {
+			const recordParams: PutRecordsInput & { Segment?: Segment } = {
 				Records: data,
 				StreamName: stream
 			};
+
+			if (self._segment) {
+
+				recordParams.Segment = self._segment;
+
+			}
 
 			const putRecords: any = BBPromise.promisify(self._kinesis.putRecords, {context: self._kinesis});
 
