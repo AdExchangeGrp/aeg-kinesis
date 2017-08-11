@@ -49,7 +49,7 @@ export default class Kinesis extends EventEmitter {
 		partition: { useRecordProperty?: boolean, value: string },
 		records: any[] | any,
 		timestamp: moment.Moment,
-		options: { published?: moment.Moment, audience?: string } = {}) {
+		options: { published?: moment.Moment | string, audience?: string } = {}) {
 
 		const self = this;
 
